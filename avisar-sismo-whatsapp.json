@@ -1,0 +1,185 @@
+{
+  "name": "Avisar sismo por WhatsApp",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "sismo-alerta",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "c1a0b1e0-1111-4a1a-8c1a-000000000001",
+      "name": "Sismo publicado",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [0, 0],
+      "notes": "El listener de EMSC/USGS llama esta URL en cuanto un catálogo publica un sismo que cumple el filtro."
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "alert-token",
+              "leftValue": "={{ $json.headers['x-alert-token'] }}",
+              "rightValue": "CAMBIA-ESTE-TOKEN",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "c1a0b1e0-1111-4a1a-8c1a-000000000002",
+      "name": "Token correcto",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [280, 0]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://evolution.capitalimpulso.com/message/sendText/Mendozalz",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "{\n  \"number\": \"={{ $json.body.number }}\",\n  \"text\": \"={{ $json.body.text }}\"\n}",
+        "options": {
+          "timeout": 15000
+        }
+      },
+      "id": "c1a0b1e0-1111-4a1a-8c1a-000000000003",
+      "name": "Avisar por WhatsApp",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [560, -80],
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 2000,
+      "onError": "continueErrorOutput",
+      "notes": "Misma credencial Header Auth EvolutionApi del aviso de correo. El número es el celular que sí recibió la prueba."
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ { ok: true } }}",
+        "options": {
+          "responseCode": 200
+        }
+      },
+      "id": "c1a0b1e0-1111-4a1a-8c1a-000000000004",
+      "name": "Aceptar aviso",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [840, -160]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ { error: \"whatsapp_failed\" } }}",
+        "options": {
+          "responseCode": 502
+        }
+      },
+      "id": "c1a0b1e0-1111-4a1a-8c1a-000000000005",
+      "name": "Fallo de WhatsApp",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [840, 0]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ { error: \"unauthorized\" } }}",
+        "options": {
+          "responseCode": 401
+        }
+      },
+      "id": "c1a0b1e0-1111-4a1a-8c1a-000000000006",
+      "name": "Rechazar token",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [560, 160]
+    },
+    {
+      "parameters": {
+        "content": "### Aviso de sismo\nEMSC o USGS publican el sismo y el listener llama este webhook una vez por cada número en WHATSAPP_NUMBERS. Solo entran sismos de magnitud 4.5 o más, dentro de 300 km de Medellín o en Colombia.\n\nNo adelanta la onda.\n\nAntes de activarlo:\n1. Inventa una clave y ponla igual en este nodo (CAMBIA-ESTE-TOKEN) y en ALERT_TOKEN del listener. No sale de Google ni de Evolution.\n2. En Avisar por WhatsApp elige la credencial Header Auth EvolutionApi.\n3. Activa el workflow.\n4. Despliega la carpeta sismos en Dokploy.",
+        "height": 320,
+        "width": 560,
+        "color": 4
+      },
+      "id": "c1a0b1e0-1111-4a1a-8c1a-000000000007",
+      "name": "Nota de configuración",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [0, 260]
+    }
+  ],
+  "connections": {
+    "Sismo publicado": {
+      "main": [
+        [
+          {
+            "node": "Token correcto",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Token correcto": {
+      "main": [
+        [
+          {
+            "node": "Avisar por WhatsApp",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Rechazar token",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Avisar por WhatsApp": {
+      "main": [
+        [
+          {
+            "node": "Aceptar aviso",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Fallo de WhatsApp",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "timezone": "America/Bogota"
+  },
+  "pinData": {},
+  "meta": {
+    "templateCredsSetupCompleted": false
+  }
+}
