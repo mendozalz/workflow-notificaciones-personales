@@ -20,11 +20,11 @@ Aquí se recibe el sismo y se manda el WhatsApp.
 
 n8n no puede quedarse escuchando los sismos. Este servicio corre en el servidor, recibe el dato de EMSC o USGS y llama la dirección del paso anterior.
 
-Dokploy no ve la carpeta de tu computador. La carpeta `sismos` tiene que estar en un repositorio Git que Dokploy pueda clonar.
+Dokploy no ve la carpeta de tu computador. Clona el repositorio y busca el compose en la raíz.
 
 1. En el proyecto donde ya está n8n, **Create Service** → **Compose**.
 2. Nombre: `sismo-listener`.
-3. Conecta el repositorio y pon como archivo de compose `sismos/docker-compose.yml`.
+3. Conecta el repositorio `mendozalz/workflow-notificaciones-personales`. El archivo de compose se deja en `./docker-compose.yml`, que es el valor por defecto.
 4. En **Environment** deja estas variables. `ALERT_TOKEN` es la misma clave del nodo **Token correcto**.
 
 ```text

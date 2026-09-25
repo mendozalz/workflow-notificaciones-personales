@@ -1,6 +1,8 @@
 services:
   sismo-listener:
-    build: .
+    build:
+      context: ./sismos
+      dockerfile: Dockerfile
     restart: unless-stopped
     environment:
       N8N_WEBHOOK_URL: ${N8N_WEBHOOK_URL:-https://n8n.capitalimpulso.com/webhook/sismo-alerta}
