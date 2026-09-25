@@ -1,0 +1,21 @@
+services:
+  sismo-listener:
+    build:
+      context: ./sismos
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    environment:
+      N8N_WEBHOOK_URL: ${N8N_WEBHOOK_URL:-https://n8n.capitalimpulso.com/webhook/sismo-alerta}
+      ALERT_TOKEN: ${ALERT_TOKEN:-CAMBIA-ESTE-TOKEN}
+      HOME_LAT: ${HOME_LAT:-6.2442}
+      HOME_LON: ${HOME_LON:--75.5812}
+      RADIUS_KM: ${RADIUS_KM:-300}
+      MIN_MAG: ${MIN_MAG:-4.5}
+      WHATSAPP_NUMBERS: ${WHATSAPP_NUMBERS:-573022408297}
+      MAG_UPDATE_DELTA: ${MAG_UPDATE_DELTA:-0.3}
+      USGS_EVERY_SECONDS: ${USGS_EVERY_SECONDS:-60}
+    volumes:
+      - sismo-state:/data
+
+volumes:
+  sismo-state:

@@ -1,0 +1,5 @@
+.agents/
+.cursor/
+skills-lock.json
+__pycache__/
+*.pyc

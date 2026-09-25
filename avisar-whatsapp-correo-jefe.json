@@ -1,0 +1,109 @@
+{
+  "name": "Avisar por WhatsApp cuando escriba el jefe",
+  "nodes": [
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyMinute"
+            }
+          ]
+        },
+        "filters": {
+          "sender": "fernandezosney62@gmail.com"
+        }
+      },
+      "id": "78ebbebc-e831-41a4-8d69-ba76f9afc60b",
+      "name": "Correo nuevo del jefe",
+      "type": "n8n-nodes-base.gmailTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        736,
+        272
+      ],
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "64lj7N0RcyT1fHLr",
+          "name": "Gmail account"
+        }
+      },
+      "notes": "Solo correos de Osney Fernandez. n8n recuerda la última revisión, así que no reenvía el historial."
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://evolution.capitalimpulso.com/message/sendText/mendozalz2",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"number\": \"573022408297\",\n  \"text\": \"{{ 'Osney te escribió por correo.\\\\nAsunto: ' + ($('Correo nuevo del jefe').item.json.subject || $json.Subject) + '\\\\nMensaje: ' + ($('Correo nuevo del jefe').item.json.snippet || '') }}\"\n}",
+        "options": {}
+      },
+      "id": "2da61e84-2276-418d-b12f-c34ca351ef0e",
+      "name": "Avisar por WhatsApp",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1024,
+        272
+      ],
+      "retryOnFail": false,
+      "maxTries": 3,
+      "waitBetweenTries": 2000,
+      "alwaysOutputData": true,
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "ucMXBMB0HsuJYaQ4",
+          "name": "EvolutionApi"
+        }
+      },
+      "notes": "Instancia Evolution: avisos-correo-jefe. La API key va en la credencial Header Auth (header apikey), nunca en este nodo."
+    },
+    {
+      "parameters": {
+        "content": "### Aviso de correo del jefe\nCuando llega un correo de fernandezosney62@gmail.com, este flujo manda un WhatsApp al +573022408297 usando la instancia **avisos-correo-jefe** de Evolution API.\n\nAntes de activarlo:\n1. En Evolution, crea la instancia `avisos-correo-jefe` y escanea el QR con el WhatsApp que enviará los avisos.\n2. En n8n, credencial **Header Auth**: nombre del header `apikey`, valor = API key de esa instancia.\n3. En el nodo de Gmail, elige tu cuenta de Google.\n4. En el nodo de WhatsApp, elige esa credencial Header Auth.",
+        "height": 280,
+        "width": 520,
+        "color": 4
+      },
+      "id": "4d057643-b8ba-44e8-82b9-6f8ed81931b4",
+      "name": "Nota de configuración",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        736,
+        496
+      ]
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Correo nuevo del jefe": {
+      "main": [
+        [
+          {
+            "node": "Avisar por WhatsApp",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "fe243c3f-a136-46a0-8943-430a21fb87eb",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "9f5378d511a4e0594902cf93550fd0dfe86e6e6171e06c03693515641d5da604"
+  },
+  "nodeGroups": [],
+  "id": "pFXTY9QdOcwcWtjW",
+  "tags": []
+}
