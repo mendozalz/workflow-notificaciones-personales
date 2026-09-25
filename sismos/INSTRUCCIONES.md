@@ -44,6 +44,8 @@ Cloudflare ya tiene el dominio `n8n.capitalimpulso.com`. El webhook es una ruta 
 
 Hazlo en este orden. El paso 1 no manda WhatsApp. El paso 2 sí.
 
+Cada aviso lleva **un solo celular** en `number`. La coma de `WHATSAPP_NUMBERS` es solo para Dokploy: el listener hace un POST por cada número. Evolution rechaza `573192754132,573022408297` en un mismo campo.
+
 1. Token malo. Debe responder `401` y `{"error":"unauthorized"}`.
 
 ```bash
@@ -53,16 +55,23 @@ curl -sS -D - -X POST https://n8n.capitalimpulso.com/webhook/sismo-alerta \
   -d '{"text":"prueba","number":"573192754132"}'
 ```
 
-2. Token bueno, el mismo del nodo **Token correcto**. Debe responder `200` y `{"ok":true}`, y llegar un WhatsApp al número del JSON.
+2. Token bueno, el mismo del nodo **Token correcto**. Un comando por celular. Cada uno debe responder `200` y `{"ok":true}`, y llegar ese WhatsApp.
 
 ```bash
 curl -sS -D - -X POST https://n8n.capitalimpulso.com/webhook/sismo-alerta \
   -H 'Content-Type: application/json' \
   -H 'X-Alert-Token: la-clave-que-inventaste' \
   -d '{"text":"Prueba de aviso de sismo. Ignorar.","number":"573192754132"}'
+
+curl -sS -D - -X POST https://n8n.capitalimpulso.com/webhook/sismo-alerta \
+  -H 'Content-Type: application/json' \
+  -H 'X-Alert-Token: la-clave-que-inventaste' \
+  -d '{"text":"Prueba de aviso de sismo. Ignorar.","number":"573022408297"}'
 ```
 
 Si el paso 1 da `404`, el workflow no está publicado. La URL de prueba del editor (`/webhook-test/...`) no es la que usa el listener.
+
+Si el paso 2 responde `502` con el texto `error code: 502` y cabecera `server: cloudflare`, el token sí pasó. n8n contestó error porque Evolution no aceptó el mensaje, y Cloudflare sustituyó el cuerpo. En la ejecución, la línea verde sale de **Avisar por WhatsApp** hacia **Fallo de WhatsApp**. Abre ese nodo y lee el error de Evolution. Lo más común es haber puesto los dos celulares en un solo `number`.
 
 3. Después del **Deploy** en Dokploy, abre **Logs**. Tiene que salir `EMSC conectado`. Un `401` ahí es la misma clave distinta en n8n y en `ALERT_TOKEN`.
 
