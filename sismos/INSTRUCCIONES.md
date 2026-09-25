@@ -55,17 +55,17 @@ curl -sS -D - -X POST https://n8n.capitalimpulso.com/webhook/sismo-alerta \
   -d '{"text":"prueba","number":"573192754132"}'
 ```
 
-2. Token bueno, el mismo del nodo **Token correcto**. Un comando por celular. Cada uno debe responder `200` y `{"ok":true}`, y llegar ese WhatsApp.
+2. Token bueno. En `X-Alert-Token` pega la clave del nodo **Token correcto**. No dejes el texto `PON-AQUI-TU-CLAVE`: si la ejecución muestra ese texto en `x-alert-token`, el flujo va a **Rechazar token**. Un comando por celular. Cada uno debe responder `200` y `{"ok":true}`, y llegar ese WhatsApp.
 
 ```bash
 curl -sS -D - -X POST https://n8n.capitalimpulso.com/webhook/sismo-alerta \
   -H 'Content-Type: application/json' \
-  -H 'X-Alert-Token: la-clave-que-inventaste' \
+  -H 'X-Alert-Token: PON-AQUI-TU-CLAVE' \
   -d '{"text":"Prueba de aviso de sismo. Ignorar.","number":"573192754132"}'
 
 curl -sS -D - -X POST https://n8n.capitalimpulso.com/webhook/sismo-alerta \
   -H 'Content-Type: application/json' \
-  -H 'X-Alert-Token: la-clave-que-inventaste' \
+  -H 'X-Alert-Token: PON-AQUI-TU-CLAVE' \
   -d '{"text":"Prueba de aviso de sismo. Ignorar.","number":"573022408297"}'
 ```
 
